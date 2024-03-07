@@ -1,2 +1,2 @@
-# alx-files_manager
+# Files Manager
 A simple platform to upload and view files
