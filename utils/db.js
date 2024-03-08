@@ -1,7 +1,7 @@
 /**
  * MongoDB Client
  */
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 class DBClient {
   constructor() {
@@ -76,7 +76,13 @@ class DBClient {
    * @param {object} filter The values of the fields to match
    */
   async findOne(col, filter) {
-    const res = await this.db.collection(col).findOne(filter);
+    const nFilter = filter;
+
+    if (Object.getOwnPropertyDescriptor(filter, '_id')) {
+      nFilter._id = new ObjectId(filter._id);
+    }
+
+    const res = await this.db.collection(col).findOne(nFilter);
     return res;
   }
 }

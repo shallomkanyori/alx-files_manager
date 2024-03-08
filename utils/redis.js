@@ -32,13 +32,8 @@ class RedisClient {
   async get(key) {
     this.client.get = promisify(this.client.get);
 
-    try {
-      const val = await this.client.get(key);
-      return val;
-    } catch (err) {
-      console.log(err.toString());
-      return null;
-    }
+    const val = await this.client.get(key);
+    return val;
   }
 
   /**
@@ -49,12 +44,7 @@ class RedisClient {
    */
   async set(key, val, duration) {
     this.client.setex = promisify(this.client.setex);
-
-    try {
-      await this.client.setex(key, duration, val);
-    } catch (err) {
-      console.log(err.toString());
-    }
+    await this.client.setex(key, duration, val);
   }
 
   /**
@@ -63,12 +53,7 @@ class RedisClient {
    */
   async del(key) {
     this.client.del = promisify(this.client.del);
-
-    try {
-      await this.client.del(key);
-    } catch (err) {
-      console.log(err.toString());
-    }
+    await this.client.del(key);
   }
 }
 

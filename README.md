@@ -11,7 +11,7 @@ A simple API to upload and view files
 ```
 {"redis":boolean,"db":boolean}
 ```
-
+----------
 
 | Method | Path      | Description                                                            |
 | ------ | --------- | ---------------------------------------------------------------------- |
@@ -21,7 +21,7 @@ A simple API to upload and view files
 ```
 {"users":number,"files":number}
 ```
-
+----------
 
 | Method  | Path      | Description                 |
 | ------- | --------- | --------------------------- |
