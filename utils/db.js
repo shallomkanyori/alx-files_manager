@@ -59,6 +59,26 @@ class DBClient {
       return 0;
     }
   }
+
+  /**
+   * Inserts one document into a collection
+   * @param {string} col The collection to insert into
+   * @param {object} data The data of the new document
+   */
+  async insertOne(col, data) {
+    const res = await this.db.collection(col).insertOne(data);
+    return res;
+  }
+
+  /**
+   * Returns first document that matches filter
+   * @param {string} col The collection to search
+   * @param {object} filter The values of the fields to match
+   */
+  async findOne(col, filter) {
+    const res = await this.db.collection(col).findOne(filter);
+    return res;
+  }
 }
 
 const dbClient = new DBClient();
