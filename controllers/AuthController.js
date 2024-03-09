@@ -14,21 +14,28 @@ export default class AuthController {
    * @param {object} res The response object
    */
   static async getConnect(req, res) {
-    let credsStr;
+    let email;
+    let password;
 
     try {
-      const b64Auth = req.get('Authorization').substring(6);
-      credsStr = Buffer.from(b64Auth, 'base64').toString('utf8');
+      const authHeader = req.get('Authorization');
+      const authType = authHeader.slice(0, 6);
+      if (authType !== 'Basic ') {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const b64Auth = authHeader.substring(6);
+      const credsStr = Buffer.from(b64Auth, 'base64').toString('utf8');
+      const creds = credsStr.split(':');
+
+      [email, password] = creds;
     } catch (err) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
     try {
-      const creds = credsStr.split(':');
-      const email = creds[0];
-      const password = creds[1];
-
       const user = await dbClient.findOne('users', { email });
       if (!user || user.password !== sha1(password)) {
         res.status(401).json({ error: 'Unauthorized' });
