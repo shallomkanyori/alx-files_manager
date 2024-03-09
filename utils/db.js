@@ -85,6 +85,26 @@ class DBClient {
     const res = await this.db.collection(col).findOne(nFilter);
     return res;
   }
+
+  /**
+   * Returns all documents that matches filter paginated
+   * @param {string} col The collection to search
+   * @param {object} filter The values of the fields to match
+   * @param {number} skip The number of ducuments to skip
+   * @param {number} limit The number of documents in each page
+   */
+  async findPaginated(col, filter, skip, limit) {
+    const nFilter = filter;
+
+    if (Object.getOwnPropertyDescriptor(filter, '_id')) {
+      nFilter._id = new ObjectId(filter._id);
+    }
+
+    const res = await this.db.collection(col).aggregate([{ $match: nFilter },
+      { $skip: skip },
+      { $limit: limit }]);
+    return res;
+  }
 }
 
 const dbClient = new DBClient();
