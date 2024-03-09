@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 import dbClient from '../utils/db';
 import { getUserFromToken, formatFileObject, validateFileData } from '../utils/helpers';
 
+const mime = require('mime-types');
+
 export default class FilesController {
   /**
    * Creates a new file in DB and disk
@@ -175,6 +177,51 @@ export default class FilesController {
 
       const result = await dbClient.updateOne('files', filter, { $set: { isPublic: false } });
       res.status(200).json(formatFileObject(result));
+    } catch (err) {
+      console.log(err.toString());
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  /**
+   * Returns a file's contents
+   * @param {object} req The request object
+   * @param {object} res The response object
+   */
+  static async getFile(req, res) {
+    try {
+      const fileId = req.params.id;
+      const file = await dbClient.findOne('files', { _id: fileId });
+      if (!file) {
+        res.status(404).json({ error: 'Not found' });
+        return;
+      }
+
+      if (!file.isPublic) {
+        const user = await getUserFromToken(req);
+
+        if (!user || file.userId.toString() !== user._id.toString()) {
+          res.status(404).json({ error: 'Not found' });
+          return;
+        }
+      }
+
+      if (file.type === 'folder') {
+        res.status(400).json({ error: 'A folder doesn\'t have content' });
+        return;
+      }
+
+      try {
+        const contents = await fs.readFile(file.localPath);
+        const contentType = mime.lookup(file.name);
+
+        res.setHeader('Content-Type', contentType);
+        res.send(contents);
+      } catch (err) {
+        console.log(err);
+        res.status(404).json({ error: 'Not found' });
+        return;
+      }
     } catch (err) {
       console.log(err.toString());
       res.status(500).json({ error: 'Internal server error' });
