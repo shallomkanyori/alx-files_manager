@@ -115,7 +115,7 @@ export default class FilesController {
       }
 
       const parentId = req.query.parentId || 0;
-      const page = req.query.page || 0;
+      const page = Number(req.query.page) || 0;
       const filesPerPage = 20;
 
       const fileCur = await dbClient.findPaginated('files', { parentId }, page * filesPerPage,

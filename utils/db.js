@@ -109,6 +109,7 @@ class DBClient {
     }
 
     const res = await this.db.collection(col).aggregate([{ $match: nFilter },
+      { $sort: { _id: -1 } },
       { $skip: skip },
       { $limit: limit }]);
     return res;
