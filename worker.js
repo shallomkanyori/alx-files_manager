@@ -8,6 +8,7 @@ const Queue = require('bull');
 const imageThumbnail = require('image-thumbnail');
 
 const fileQueue = Queue('thumbnail generating');
+const userQueue = Queue('send welcome email');
 
 fileQueue.process(async (job, done) => {
   if (!job.data.fileId) {
@@ -20,8 +21,7 @@ fileQueue.process(async (job, done) => {
 
   const file = await dbClient.findOne('files', { _id: job.data.fileId, userId: job.data.userId });
   if (!file) {
-    done(new Error('File not found'));
-    return;
+    throw new Error('File not found');
   }
 
   const options = { responseType: 'base64' };
@@ -36,5 +36,19 @@ fileQueue.process(async (job, done) => {
   }
 
   await Promise.all(promises);
+  done();
+});
+
+userQueue.process(async (job, done) => {
+  if (!job.data.userId) {
+    throw new Error('Missing userId');
+  }
+
+  const user = await dbClient.findOne('users', { _id: job.data.userId });
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  console.log(`Welcome ${user.email}`);
   done();
 });

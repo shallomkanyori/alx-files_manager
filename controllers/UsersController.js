@@ -5,6 +5,8 @@ import sha1 from 'sha1';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
+const Queue = require('bull');
+
 class UsersController {
   /**
    * Creates a new user in DB
@@ -12,6 +14,7 @@ class UsersController {
    * @param {object} res The response object
    */
   static async postNew(req, res) {
+    const userQueue = Queue('send welcome email');
     const { email } = req.body;
     const { password } = req.body;
 
@@ -34,6 +37,9 @@ class UsersController {
       }
 
       const result = await dbClient.insertOne('users', { email, password: sha1(password) });
+
+      userQueue.add({userId: result.insertedId});
+
       res.status(201).json({ email, id: result.insertedId });
     } catch (error) {
       console.log(error.toString());
