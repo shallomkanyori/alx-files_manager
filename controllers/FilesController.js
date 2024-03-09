@@ -122,4 +122,62 @@ export default class FilesController {
       res.status(500).json({ error: 'Internal server error' });
     }
   }
+
+  /**
+   * Publish a file
+   * @param {object} req The request object
+   * @param {object} res The response object
+   */
+  static async putPublish(req, res) {
+    try {
+      const user = await getUserFromToken(req);
+      if (!user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const fileId = req.params.id;
+      const filter = { _id: fileId, userId: user._id };
+      const file = await dbClient.findOne('files', filter);
+      if (!file) {
+        res.status(404).json({ error: 'Not found' });
+        return;
+      }
+
+      const result = await dbClient.updateOne('files', filter, { $set: { isPublic: true } });
+      res.status(200).json(formatFileObject(result));
+    } catch (err) {
+      console.log(err.toString());
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  /**
+   * Unpublish a file
+   * @param {object} req The request object
+   * @param {object} res The response object
+   */
+  static async putUnpublish(req, res) {
+    try {
+      const user = await getUserFromToken(req);
+      if (!user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+      }
+
+      const fileId = req.params.id;
+      const filter = { _id: fileId, userId: user._id };
+      const file = await dbClient.findOne('files', filter);
+      if (!file) {
+        res.status(404).json({ error: 'Not found' });
+        return;
+      }
+
+      const result = await dbClient.updateOne('files', filter, { $set: { isPublic: false } });
+      res.status(200).json(formatFileObject(result));
+    } catch (err) {
+      console.log(err.toString());
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
 }

@@ -105,6 +105,24 @@ class DBClient {
       { $limit: limit }]);
     return res;
   }
+
+  /**
+   * Update a single document
+   * @param {string} col The collection of the document to update
+   * @param {object} filter The criteria to match for the document to update
+   * @param {object} update The update document
+   */
+  async updateOne(col, filter, update) {
+    const nFilter = filter;
+
+    if (Object.getOwnPropertyDescriptor(filter, '_id')) {
+      nFilter._id = new ObjectId(filter._id);
+    }
+
+    const res = await this.db.collection(col).findOneAndUpdate(filter, update,
+      { returnDocument: 'after' });
+    return res.value;
+  }
 }
 
 const dbClient = new DBClient();
