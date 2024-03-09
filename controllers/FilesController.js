@@ -7,6 +7,7 @@ import dbClient from '../utils/db';
 import { getUserFromToken, formatFileObject, validateFileData } from '../utils/helpers';
 
 const mime = require('mime-types');
+const Queue = require('bull');
 
 export default class FilesController {
   /**
@@ -15,6 +16,8 @@ export default class FilesController {
    * @param {object} res The response object
    */
   static async postUpload(req, res) {
+    const fileQueue = Queue('thumbnail generating');
+
     try {
       const user = await getUserFromToken(req);
       if (!user) {
@@ -60,6 +63,11 @@ export default class FilesController {
       delete nFileData.data;
 
       await dbClient.insertOne('files', nFileData);
+
+      if (nFileData.type === 'image') {
+        fileQueue.add({ userId: nFileData.userId, fileId: nFileData._id });
+      }
+
       res.status(201).json(formatFileObject(nFileData));
     } catch (err) {
       console.log(err);
@@ -212,7 +220,13 @@ export default class FilesController {
       }
 
       try {
-        const contents = await fs.readFile(file.localPath);
+        const { size } = req.query;
+        let path = file.localPath;
+
+        if (size === '500' || size === '250' || size === '100') {
+          path = `${path}_${size}`;
+        }
+        const contents = await fs.readFile(path);
         const contentType = mime.lookup(file.name);
 
         res.setHeader('Content-Type', contentType);

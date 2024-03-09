@@ -78,8 +78,12 @@ class DBClient {
   async findOne(col, filter) {
     const nFilter = filter;
 
-    if (Object.getOwnPropertyDescriptor(filter, '_id')) {
+    if (Object.getOwnPropertyDescriptor(filter, '_id') && typeof filter._id === 'string') {
       nFilter._id = new ObjectId(filter._id);
+    }
+
+    if (Object.getOwnPropertyDescriptor(filter, 'userId') && typeof filter.userId === 'string') {
+      nFilter.userId = new ObjectId(filter.userId);
     }
 
     const res = await this.db.collection(col).findOne(nFilter);
@@ -96,8 +100,12 @@ class DBClient {
   async findPaginated(col, filter, skip, limit) {
     const nFilter = filter;
 
-    if (Object.getOwnPropertyDescriptor(filter, '_id')) {
+    if (Object.getOwnPropertyDescriptor(filter, '_id') && typeof filter._id === 'string') {
       nFilter._id = new ObjectId(filter._id);
+    }
+
+    if (Object.getOwnPropertyDescriptor(filter, 'userId') && typeof filter.userId === 'string') {
+      nFilter.userId = new ObjectId(filter.userId);
     }
 
     const res = await this.db.collection(col).aggregate([{ $match: nFilter },
@@ -115,8 +123,12 @@ class DBClient {
   async updateOne(col, filter, update) {
     const nFilter = filter;
 
-    if (Object.getOwnPropertyDescriptor(filter, '_id')) {
+    if (Object.getOwnPropertyDescriptor(filter, '_id') && typeof filter._id === 'string') {
       nFilter._id = new ObjectId(filter._id);
+    }
+
+    if (Object.getOwnPropertyDescriptor(filter, 'userId') && typeof filter.userId === 'string') {
+      nFilter.userId = new ObjectId(filter.userId);
     }
 
     const res = await this.db.collection(col).findOneAndUpdate(filter, update,
