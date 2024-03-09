@@ -3,7 +3,7 @@
  */
 import sha1 from 'sha1';
 import dbClient from '../utils/db';
-import redisClient from '../utils/redis';
+import { getUserFromToken } from '../utils/helpers';
 
 const Queue = require('bull');
 
@@ -54,9 +54,7 @@ class UsersController {
    */
   static async getMe(req, res) {
     try {
-      const token = req.get('X-Token');
-      const userId = await redisClient.get(`auth_${token}`);
-      const user = await dbClient.findOne('users', { _id: userId });
+      const user = await getUserFromToken(req);
 
       if (!user) {
         res.status(401).json({ error: 'Unauthorized' });

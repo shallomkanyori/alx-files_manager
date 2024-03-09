@@ -5,6 +5,7 @@ import sha1 from 'sha1';
 import { v4 as uuidv4 } from 'uuid';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
+import { getUserFromToken } from '../utils/helpers';
 
 export default class AuthController {
   /**
@@ -52,11 +53,9 @@ export default class AuthController {
    */
   static async getDisconnect(req, res) {
     try {
-      const token = req.get('X-Token');
-      const key = `auth_${token}`;
-
-      const userId = await redisClient.get(key);
-      if (!userId) {
+      const user = await getUserFromToken(req);
+      const key = `auth_${req.get('X-Token')}`;
+      if (!user) {
         res.send(401).json({ error: 'Unauthorized' });
         return;
       }
