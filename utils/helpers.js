@@ -49,7 +49,7 @@ export async function validateFileData(nFileData) {
 
   if (errMsg) return errMsg;
 
-  if (nFileData.parentId) {
+  if (nFileData.parentId !== '0') {
     const parent = await dbClient.findOne('files', { _id: nFileData.parentId });
 
     if (!parent) {

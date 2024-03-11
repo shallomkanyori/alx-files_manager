@@ -28,7 +28,7 @@ export default class FilesController {
       const nFileData = {
         name: req.body.name,
         type: req.body.type,
-        parentId: req.body.parentId || 0,
+        parentId: req.body.parentId || '0',
         isPublic: req.body.isPublic || false,
         data: req.body.data,
       };
@@ -114,7 +114,7 @@ export default class FilesController {
         return;
       }
 
-      const parentId = req.query.parentId || 0;
+      const parentId = req.query.parentId || '0';
       const page = Number(req.query.page) || 0;
       const filesPerPage = 20;
 
