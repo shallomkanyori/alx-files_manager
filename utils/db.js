@@ -7,7 +7,8 @@ class DBClient {
   constructor() {
     this.host = process.env.DB_HOST || 'localhost';
     this.port = process.env.DB_PORT || 27017;
-    this.database = process.env.DB_DATABASE || 'files_manager';
+    const defaultDb = process.env.DB_ENV === 'test' ? 'files_manager_test' : 'files_manager';
+    this.database = process.env.DB_DATABASE || defaultDb;
 
     this.connected = false;
 
@@ -66,7 +67,17 @@ class DBClient {
    * @param {object} data The data of the new document
    */
   async insertOne(col, data) {
-    const res = await this.db.collection(col).insertOne(data);
+    const nData = data;
+
+    if (typeof data.userId === 'string') {
+      nData.userId = new ObjectId(data.userId);
+    }
+
+    if (typeof data.parentId === 'string' && data.parentId !== '0') {
+      nData.parentId = new ObjectId(data.parentId);
+    }
+
+    const res = await this.db.collection(col).insertOne(nData);
     return res;
   }
 
@@ -78,11 +89,11 @@ class DBClient {
   async findOne(col, filter) {
     const nFilter = filter;
 
-    if (Object.getOwnPropertyDescriptor(filter, '_id') && typeof filter._id === 'string') {
+    if (typeof filter._id === 'string') {
       nFilter._id = new ObjectId(filter._id);
     }
 
-    if (Object.getOwnPropertyDescriptor(filter, 'userId') && typeof filter.userId === 'string') {
+    if (typeof filter.userId === 'string') {
       nFilter.userId = new ObjectId(filter.userId);
     }
 
