@@ -63,7 +63,7 @@ export default class AuthController {
       const user = await getUserFromToken(req);
       const key = `auth_${req.get('X-Token')}`;
       if (!user) {
-        res.send(401).json({ error: 'Unauthorized' });
+        res.status(401).json({ error: 'Unauthorized' });
         return;
       }
 
