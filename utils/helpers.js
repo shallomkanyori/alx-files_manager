@@ -28,6 +28,10 @@ export function formatFileObject(file) {
   delete res._id;
   delete res.localPath;
 
+  if (res.parentId === '0') {
+    res.parentId = 0;
+  }
+
   return res;
 }
 
