@@ -111,12 +111,16 @@ class DBClient {
   async findPaginated(col, filter, skip, limit) {
     const nFilter = filter;
 
-    if (Object.getOwnPropertyDescriptor(filter, '_id') && typeof filter._id === 'string') {
+    if (typeof filter._id === 'string') {
       nFilter._id = new ObjectId(filter._id);
     }
 
-    if (Object.getOwnPropertyDescriptor(filter, 'userId') && typeof filter.userId === 'string') {
+    if (typeof filter.userId === 'string') {
       nFilter.userId = new ObjectId(filter.userId);
+    }
+
+    if (typeof filter.parentId === 'string' && filter.parentId !== '0') {
+      nFilter.parentId = new ObjectId(filter.parentId);
     }
 
     const res = await this.db.collection(col).aggregate([{ $match: nFilter },
